@@ -1,0 +1,67 @@
+name: CI
+
+# Valida que el codigo compile y que las pruebas locales pasen.
+# Se ejecuta en cada push y en cada pull request.
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  validar:
+    name: Validar codigo
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar el repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: Tarea3/requirements.txt
+
+      - name: Instalar dependencias
+        working-directory: Tarea3
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Verificar que todos los modulos compilan
+        working-directory: Tarea3
+        run: python -m compileall -q main.py config handlers
+
+      - name: Ejecutar pruebas del modulo matematico
+        working-directory: Tarea3
+        run: python handlers/matematicas.py
+
+      - name: Verificar que el bot arranca y registra los comandos
+        working-directory: Tarea3
+        env:
+          TELEGRAM_TOKEN: "000000:TOKEN_FALSO_PARA_VALIDACION_EN_CI"
+        run: |
+          python -c "
+          from main import construir_aplicacion, COMANDOS
+          app = construir_aplicacion()
+          registrados = set()
+          for grupo, handlers in app.handlers.items():
+              for h in handlers:
+                  registrados.update(getattr(h, 'commands', None) or [])
+          esperados = {c.command for c in COMANDOS}
+          faltantes = esperados - registrados
+          assert not faltantes, f'Comandos sin registrar: {faltantes}'
+          assert app.error_handlers, 'No hay manejador global de errores'
+          print(f'OK: {len(esperados)} comandos registrados y manejador de errores activo')
+          "
+
+      - name: Verificar que no se haya expuesto el token
+        run: |
+          if git grep -nE '[0-9]{8,10}:AA[A-Za-z0-9_-]{30,}' -- . ':!.github/workflows'; then
+            echo "::error::Se encontro un token de Telegram en el codigo fuente."
+            exit 1
+          fi
+          echo "OK: no se encontraron tokens expuestos."

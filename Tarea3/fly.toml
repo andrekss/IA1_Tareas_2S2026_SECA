@@ -1,24 +1,31 @@
 # Configuracion de despliegue en Fly.io
-# El bot usa polling (no webhook), por lo que no expone puertos HTTP.
-# Se ejecuta como proceso permanente que nunca debe detenerse.
+#
+# El bot utiliza polling (no webhook), por lo que no expone puertos HTTP.
+# No se define [http_service] ni [[services]] a proposito: sin trafico
+# entrante que monitorear, Fly no suspende la maquina por inactividad y el
+# bot permanece ejecutandose de forma continua.
+#
+# El TELEGRAM_TOKEN NO se coloca aqui. Se carga como secret con:
+#   fly secrets set TELEGRAM_TOKEN=<token>
+#
+# Referencia: https://fly.io/docs/reference/configuration/
 
-app = "bot-telegram-tarea3"
-primary_region = "mia"
-
-[build]
-  dockerfile = "Dockerfile"
-
-[env]
-  ZONA_HORARIA = "America/Guatemala"
-  LOG_LEVEL = "INFO"
-
-# Sin seccion [http_service] ni [[services]]: el bot no recibe trafico entrante,
-# por lo que Fly no debe suspender la maquina por inactividad de red.
-
-[[vm]]
-  size = "shared-cpu-1x"
-  memory = "256mb"
-  cpus = 1
+app = 'bot-telegram-tarea3'
+primary_region = 'dfw'
 
 [experimental]
   auto_rollback = true
+
+[build]
+  dockerfile = 'Dockerfile'
+
+[env]
+  LOG_LEVEL = 'INFO'
+  ZONA_HORARIA = 'America/Guatemala'
+
+[[vm]]
+  size = 'shared-cpu-1x'
+  memory = '256mb'
+  cpu_kind = 'shared'
+  cpus = 1
+  memory_mb = 256
