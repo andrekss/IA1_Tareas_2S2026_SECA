@@ -98,7 +98,7 @@ Tarea3/
 ├── requirements.txt
 ├── .env.example
 ├── Dockerfile
-└── render.yaml
+└── fly.toml
 ```
 
 La logica de negocio se mantiene separada de la libreria de Telegram, lo que
@@ -108,19 +108,78 @@ permite probar los calculos de forma local:
 python handlers/matematicas.py
 ```
 
-## Despliegue en la nube (Render)
+## Despliegue en la nube (Fly.io)
 
-El bot se despliega como **Background Worker** en Render usando el plan
-gratuito, con `polling` (no requiere URL publica ni webhook).
+El bot se despliega en **Fly.io** como un proceso permanente que utiliza
+`polling`, por lo que no expone puertos HTTP ni requiere webhook.
 
-1. Subir el repositorio a GitHub.
-2. En [render.com](https://render.com) crear un **New > Background Worker** y
-   conectar el repositorio.
-3. Configurar: *Root Directory* `Tarea3`, *Runtime* `Docker`.
-   El archivo `render.yaml` ya contiene esta configuracion.
-4. En **Environment**, agregar la variable `TELEGRAM_TOKEN` con el token de
-   BotFather. Nunca se coloca el token en el codigo fuente.
-5. Desplegar. El worker se mantiene activo de forma continua.
+### Requisitos
+
+Instalar la CLI de Fly (`flyctl`):
+
+```powershell
+# Windows (PowerShell)
+iwr https://fly.io/install.ps1 -useb | iex
+```
+
+```bash
+# Linux / macOS
+curl -L https://fly.io/install.sh | sh
+```
+
+### Pasos
+
+1. Iniciar sesion:
+
+   ```bash
+   fly auth login
+   ```
+
+2. Desde la carpeta `Tarea3`, crear la aplicacion sin desplegarla aun.
+   Si el nombre ya esta ocupado, elija otro y actualicelo en `fly.toml`:
+
+   ```bash
+   cd Tarea3
+   fly launch --no-deploy --copy-config --name bot-telegram-tarea3
+   ```
+
+3. Cargar el token como *secret*. Nunca se coloca en el codigo ni en `fly.toml`:
+
+   ```bash
+   fly secrets set TELEGRAM_TOKEN=el_token_de_botfather
+   ```
+
+4. Desplegar:
+
+   ```bash
+   fly deploy
+   ```
+
+5. Verificar que el bot quedo activo:
+
+   ```bash
+   fly status
+   fly logs
+   ```
+
+### Mantener el bot activo
+
+El archivo `fly.toml` no define servicios HTTP, por lo que la maquina no se
+suspende por inactividad de red y el bot permanece ejecutandose de forma
+continua.
+
+Comandos utiles durante el periodo de calificacion:
+
+| Accion | Comando |
+|---|---|
+| Ver estado de la maquina | `fly status` |
+| Ver logs en tiempo real | `fly logs` |
+| Reiniciar el bot | `fly apps restart bot-telegram-tarea3` |
+| Redesplegar tras un cambio | `fly deploy` |
+| Listar las variables cargadas | `fly secrets list` |
+
+Si el bot deja de responder, `fly logs` muestra la causa y
+`fly apps restart` lo levanta nuevamente.
 
 ## Detalle de qué integrante realizó cada parte de la tarea
 
@@ -135,7 +194,7 @@ gratuito, con `polling` (no requiere URL publica ni webhook).
   * Gestion de variables de entorno con `.env`, `.env.example` y `.gitignore`.
   * Definicion de `requirements.txt` con las dependencias del proyecto.
   * Adaptador de Telegram para el modulo matematico (`comandos_matematicas.py`).
-  * Configuracion del despliegue en la nube (`Dockerfile`, `render.yaml`) y
+  * Configuracion del despliegue en la nube (`Dockerfile`, `fly.toml`) y
     monitoreo de disponibilidad del bot.
 
 ### Integrante 2: Comandos Informativos y Datos del Grupo
