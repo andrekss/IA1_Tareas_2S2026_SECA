@@ -4,6 +4,13 @@ if sys.stdout and hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
 
 
+def _escapar(texto: str) -> str:
+    """Neutraliza los caracteres de Markdown en valores escritos por el usuario."""
+    for caracter in ("\\", "`", "*", "_", "["):
+        texto = texto.replace(caracter, "\\" + caracter)
+    return texto
+
+
 def _formatear_numero(valor: float) -> str:
     if valor.is_integer():
         return str(int(valor))
@@ -35,7 +42,7 @@ def procesar_calcular(args) -> str:
             "- `/calcular 20.5 - 4.2`\n"
             "- `/calcular 8 * 3`\n"
             "- `/calcular 50 / 2`\n\n"
-            "Operadores soportados: +, -, * (o x), /"
+            "Operadores soportados: `+`, `-`, `*` (o `x`), `/`"
         )
 
     str_num1, operador, str_num2 = partes
@@ -44,7 +51,7 @@ def procesar_calcular(args) -> str:
         num1 = float(str_num1)
     except ValueError:
         return (
-            f"[ERROR] El valor '{str_num1}' no es un numero valido.\n\n"
+            f"[ERROR] El valor '{_escapar(str_num1)}' no es un numero valido.\n\n"
             "Uso correcto:\n"
             "`/calcular <numero1> <operador> <numero2>`\n"
             "Ejemplo: `/calcular 10 + 5`"
@@ -60,7 +67,7 @@ def procesar_calcular(args) -> str:
     }
     if operador not in operadores_validos:
         return (
-            f"[ERROR] El operador '{operador}' no es valido.\n\n"
+            f"[ERROR] El operador '{_escapar(operador)}' no es valido.\n\n"
             "Operadores soportados:\n"
             "- Suma: `+`\n"
             "- Resta: `-`\n"
@@ -75,7 +82,7 @@ def procesar_calcular(args) -> str:
         num2 = float(str_num2)
     except ValueError:
         return (
-            f"[ERROR] El valor '{str_num2}' no es un numero valido.\n\n"
+            f"[ERROR] El valor '{_escapar(str_num2)}' no es un numero valido.\n\n"
             "Uso correcto:\n"
             "`/calcular <numero1> <operador> <numero2>`\n"
             "Ejemplo: `/calcular 10 + 5`"
@@ -129,7 +136,7 @@ def procesar_tabla(args) -> str:
         numero = float(partes[0])
     except ValueError:
         return (
-            f"[ERROR] El valor '{partes[0]}' no es un numero valido.\n\n"
+            f"[ERROR] El valor '{_escapar(partes[0])}' no es un numero valido.\n\n"
             "Uso correcto:\n"
             "`/tabla <numero>`\n"
             "Ejemplo: `/tabla 7`"

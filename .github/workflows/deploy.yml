@@ -49,6 +49,10 @@ jobs:
         working-directory: Tarea3
         run: python handlers/matematicas.py
 
+      - name: Ejecutar pruebas del modulo de utilidades
+        working-directory: Tarea3
+        run: python handlers/utilidades.py
+
   desplegar:
     name: Desplegar a Fly.io
     needs: validar

@@ -39,6 +39,10 @@ jobs:
         working-directory: Tarea3
         run: python handlers/matematicas.py
 
+      - name: Ejecutar pruebas del modulo de utilidades
+        working-directory: Tarea3
+        run: python handlers/utilidades.py
+
       - name: Verificar que el bot arranca y registra los comandos
         working-directory: Tarea3
         env:
