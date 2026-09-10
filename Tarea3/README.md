@@ -13,7 +13,7 @@ Escuela de Ingenieria en Ciencias y Sistemas - Inteligencia Artificial 1
 |---|---|
 | Evelio Marcos Josue Cruz Solliz | 202010040 |
 | _(pendiente Integrante 2)_ | |
-| _(pendiente Integrante 3)_ | |
+| Daniel Hernandez | 202300512 |
 | Jose Emanuel Monzon Lemus | 202300539 |
 | _(pendiente Integrante 5)_ | |
 
@@ -80,6 +80,60 @@ _(pendiente: colocar el enlace del grupo o chat de Telegram)_
 Ante un comando inexistente, parametros faltantes o valores invalidos, el bot
 responde con un mensaje que indica el error y la sintaxis correcta, sin
 detener su ejecucion.
+
+## Menu interactivo (`/menu`)
+
+El comando `/menu` despliega un menu de botones (`InlineKeyboardMarkup`)
+organizado en cuatro categorias. Toda la navegacion ocurre **sobre el mismo
+mensaje**: al presionar un boton el bot edita el texto y el teclado en lugar
+de enviar mensajes nuevos, y cada pantalla incluye el boton
+**"⬅️ Volver al Menú"** para regresar al menu principal.
+
+Al presionar un comando ocurre una de dos cosas segun el tipo de comando:
+
+| Tipo de comando | Categoria | Accion al presionar el boton |
+|---|---|---|
+| Sin parametros (`/hola`, `/hora`, `/contacto`, `/integrantes`, `/ayuda`) | ℹ️ Informacion | Se **ejecuta directamente**. El resultado llega como mensaje nuevo y el menu de la categoria se vuelve a enviar debajo para seguir navegando. |
+| Con parametros (`/calcular`, `/tabla`, `/convertir`, `/aleatorio`) | 🧮 Calculos, 📐 Conversiones, 🛠️ Utilidades | Se muestra una **plantilla de uso** con la sintaxis, ejemplos y notas. Incluye el boton **"▶️ Probar ejemplo"**, que ejecuta el comando con los valores del primer ejemplo. |
+
+### Diagrama del flujo de navegacion
+
+```mermaid
+flowchart TD
+    CMD["/menu"] --> MAIN["📋 Menu principal<br/>ℹ️ Informacion · 🧮 Calculos<br/>📐 Conversiones · 🛠️ Utilidades"]
+
+    MAIN -->|"cat:info"| INFO["ℹ️ Informacion<br/>👋 Saludar · 🕒 Fecha y hora<br/>📞 Contacto · 👥 Integrantes · ❓ Ayuda"]
+    MAIN -->|"cat:calc"| CALC["🧮 Calculos<br/>➕ Calcular · ✖️ Tabla"]
+    MAIN -->|"cat:conv"| CONV["📐 Conversiones<br/>📏 Convertir longitud"]
+    MAIN -->|"cat:util"| UTIL["🛠️ Utilidades<br/>🎲 Numero aleatorio"]
+
+    INFO -->|"run:&lt;comando&gt;"| EXEC["✅ Ejecuta el comando<br/>y reenvia la categoria<br/>debajo del resultado"]
+    EXEC --> INFO
+
+    CALC -->|"tpl:&lt;comando&gt;"| TPL["📄 Plantilla de uso<br/>sintaxis · ejemplos · notas"]
+    CONV -->|"tpl:convertir"| TPL
+    UTIL -->|"tpl:aleatorio"| TPL
+
+    TPL -->|"▶️ Probar ejemplo (ej:&lt;comando&gt;)"| EXEC2["✅ Ejecuta el ejemplo<br/>y reenvia la categoria"]
+    TPL -->|"◀️ Categoria"| CALC
+    EXEC2 --> CALC
+
+    INFO & CALC & CONV & UTIL & TPL -->|"⬅️ Volver al Menu"| MAIN
+```
+
+Cada boton lleva un `callback_data` corto que `manejar_boton` interpreta:
+
+| `callback_data` | Pantalla o accion |
+|---|---|
+| `menu` | Menu principal. |
+| `cat:<clave>` | Pantalla de la categoria (`info`, `calc`, `conv`, `util`). |
+| `run:<comando>` | Ejecuta un comando sin parametros. |
+| `tpl:<comando>` | Muestra la plantilla de uso de un comando con parametros. |
+| `ej:<comando>` | Ejecuta el comando con los argumentos del primer ejemplo. |
+
+Un `callback_data` desconocido (por ejemplo, de un boton de una version
+anterior del bot) regresa al menu principal en lugar de generar un error, y si
+el mensaje del menu es demasiado antiguo para editarse se envia un menu nuevo.
 
 ## Estructura del proyecto
 
@@ -201,9 +255,26 @@ Si el bot deja de responder, `fly logs` muestra la causa y
 * **Responsable:** _(pendiente)_
 * **Comandos:** `/hola`, `/hora`, `/contacto`, `/integrantes`, `/ayuda`.
 
-### Integrante 3: Menú Interactivo
-* **Responsable:** _(pendiente)_
-* **Comandos:** `/menu` y los manejadores de eventos de los botones.
+### Integrante 3: Menú Interactivo (Botones de Telegram)
+* **Responsable:** Daniel Hernandez (202300512)
+* **Comandos:** `/menu` y los manejadores de eventos de los botones
+  (`handlers/menu.py`).
+* **Aportes:**
+  * Menu principal con `InlineKeyboardMarkup` y navegacion por categorias:
+    Informacion, Calculos, Conversiones y Utilidades.
+  * `CallbackQueryHandler` (`manejar_boton`) que despacha cada boton segun su
+    `callback_data`: ejecuta el comando (sin parametros), muestra la plantilla
+    de uso (con parametros) o ejecuta el ejemplo de la plantilla.
+  * Boton "⬅️ Volver al Menú" en todas las pantallas y boton para regresar a la
+    categoria desde las plantillas.
+  * Adaptador `_UpdateDesdeBoton` que permite reutilizar los handlers de los
+    demas integrantes desde un boton sin modificar sus modulos.
+  * Manejo de casos borde: mismo boton presionado dos veces, `callback_data`
+    desconocido y mensajes de menu que Telegram ya no permite editar.
+  * Definicion declarativa del menu (`OPCIONES` y `CATEGORIAS`), por lo que
+    agregar un comando nuevo al menu solo requiere una entrada en el
+    diccionario.
+  * Documentacion del flujo de navegacion (seccion "Menu interactivo").
 
 ### Integrante 4: Modulo Matematico
 * **Responsable:** José Emanuel Monzén Lémus (202300539)
