@@ -12,7 +12,7 @@ Escuela de Ingenieria en Ciencias y Sistemas - Inteligencia Artificial 1
 | Nombre | Carnet |
 |---|---|
 | Evelio Marcos Josue Cruz Solliz | 202010040 |
-| _(pendiente Integrante 2)_ | |
+| Andrés Alejandro Agosto Méndez | 202113580 |
 | Daniel Hernandez | 202300512 |
 | Jose Emanuel Monzon Lemus | 202300539 |
 | _(pendiente Integrante 5)_ | |
