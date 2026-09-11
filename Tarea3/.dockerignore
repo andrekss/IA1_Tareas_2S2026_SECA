@@ -1,0 +1,10 @@
+# Nunca copiar el token a la imagen
+.env
+
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.git/
+README.md

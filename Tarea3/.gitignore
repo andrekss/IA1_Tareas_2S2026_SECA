@@ -1,0 +1,11 @@
+definicion/
+
+# Variables de entorno (contienen el TELEGRAM_TOKEN)
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
