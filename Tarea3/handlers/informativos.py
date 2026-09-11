@@ -27,7 +27,7 @@ CORREO_CONTACTO = "3031294090108@ingenieria.usac.edu.gt"
 # (nombre, carnet) en el orden de los integrantes del README.
 INTEGRANTES = (
     ("Evelio Marcos Josue Cruz Solliz", "202010040"),
-    ("(pendiente Integrante 2)", "---------"),
+    ("Andrés Alejandro Agosto Méndez", "202113580"),
     ("Daniel Hernandez", "202300512"),
     ("Jose Emanuel Monzon Lemus", "202300539"),
     ("(pendiente Integrante 5)", "---------"),
