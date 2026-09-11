@@ -30,7 +30,7 @@ INTEGRANTES = (
     ("Andrés Alejandro Agosto Méndez", "202113580"),
     ("Daniel Hernandez", "202300512"),
     ("Jose Emanuel Monzon Lemus", "202300539"),
-    ("(pendiente Integrante 5)", "---------"),
+    ("Angel Geovanny Ordón Colchaj", "201905741"),
 )
 
 # (comando, sintaxis o None, descripcion, ejemplo o None)
